@@ -1,95 +1,81 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+//Import area
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
+
+
+
+
+
 
 export default function Home() {
+
+  //2.1 Hooks Area
+  const [stc, setStc] = React.useState('');
+  const [name, setName] = React.useState('');
+  const [price, setPrice] = React.useState('');
+
+  const fetchStockData = (stock) => {
+    fetch(`http://localhost:3000/api/getstockprice?stock=${stock}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setName(data.name);
+        setPrice(data.price);
+      })
+      .catch((error) => console.error(error));
+
+  };
+
+  const handleChange = (e) => {
+    const selectedStock = e.target.value;
+    setStc(selectedStock);
+    fetchStockData(selectedStock);
+  };
+
+  React.useEffect(() => {
+    // Initial fetch when the component mounts
+    fetchStockData(stc);
+
+    // Call the API every 30 seconds
+    const intervalId = setInterval(() => fetchStockData(stc), 60000);
+
+    return () => {
+      clearInterval(intervalId); // Clear the interval when the component unmounts
+    };
+  }, [stc]); // Include stc in the dependency array to re-run the effect when it changes
+
+
+  
+
+  //Return statement
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main>
+      <h1>The Stock Price of {name} is {price}</h1>
+      <Box sx={{ minWidth: 120 }}>
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">Stock</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={stc}
+            label="Stock"
+            onChange={handleChange}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+            <MenuItem value={"HDFC"}>HDFC</MenuItem>
+            <MenuItem value={"ICICI"}>ICICI</MenuItem>
+            <MenuItem value={"Axis"}>Axis</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+    
     </main>
-  )
+  );
 }
+
+//Export area
